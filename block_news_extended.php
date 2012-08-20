@@ -66,7 +66,18 @@ class block_news_extended extends block_base {
 		    'p.modified DESC');
         $this->content->text .= ob_get_contents();
         ob_end_clean();
-        return $this->content;
+		
+		// Enlarge the user pictures (strange combination of CSS affecting image size here.
+		// This is best I can do - sizes above 35px get cropped)
+		if (preg_match_all('/<img.*?class=".*?userpicture.*?".*?>/', $this->content->text, $matches)) {
+            foreach ($matches[0] as $match) {
+                $imgelement = preg_replace('/width=".*?"/', 'style="width:35px;height:35px"', $match);
+                $imgelement = preg_replace('/height=".*?"/', '', $imgelement);
+				$this->content->text = str_replace($match, $imgelement, $this->content->text, $count);
+            }
+		}
+
+		return $this->content;
     }
 }
 
