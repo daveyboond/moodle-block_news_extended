@@ -13,7 +13,7 @@ class block_news_extended extends block_base {
         global $CFG, $USER;
 
         /* Same as block_news_items to start with */
-		
+
         if ($this->content !== NULL) {
             return $this->content;
         }
@@ -37,16 +37,15 @@ class block_news_extended extends block_base {
 
         // Fetch news forum context for proper filtering to happen
         $newsforumcm = get_coursemodule_from_instance('forum', $newsforum->id, $this->page->course->id, false, MUST_EXIST);
-        $newsforumcontext = get_context_instance(CONTEXT_MODULE, $newsforumcm->id, MUST_EXIST);
+        $newsforumcontext = context_module::instance($newsforumcm->id);
 
         // Get name of forum
         $forumname = format_string($newsforum->name, true, array('context' => $newsforumcontext));
         $this->content->text .= html_writer::tag('a', get_string('skipa', 'access',
-		    moodle_strtolower(strip_tags($forumname))), array('href'=>'#skipsitenews', 'class'=>'skip-block'));
+	    core_text::strtolower(strip_tags($forumname))), array('href'=>'#skipsitenews', 'class'=>'skip-block'));
 
         // Add subscribe/unsubscribe links
         if (isloggedin()) {
-            $SESSION->fromdiscussion = $CFG->wwwroot;
             $subtext = '';
             if (forum_is_subscribed($USER->id, $newsforum)) {
                 if (!forum_is_forcesubscribed($newsforum)) {
@@ -57,7 +56,7 @@ class block_news_extended extends block_base {
             }
             $suburl = new moodle_url('/mod/forum/subscribe.php', array('id' => $newsforum->id, 'sesskey' => sesskey()));
             $this->content->text .= html_writer::tag('div', html_writer::link($suburl, $subtext),
-			    array('class' => 'subscribelink'));
+	        array('class' => 'subscribelink'));
         }
 
         // Use output buffering to capture output from forum listing function
@@ -67,17 +66,17 @@ class block_news_extended extends block_base {
         $this->content->text .= ob_get_contents();
         ob_end_clean();
 		
-		// Enlarge the user pictures (strange combination of CSS affecting image size here.
-		// This is best I can do - sizes above 35px get cropped)
-		if (preg_match_all('/<img.*?class=".*?userpicture.*?".*?>/', $this->content->text, $matches)) {
+	// Enlarge the user pictures (strange combination of CSS affecting image size here.
+	// This is best I can do - sizes above 35px get cropped)
+	if (preg_match_all('/<img.*?class=".*?userpicture.*?".*?>/', $this->content->text, $matches)) {
             foreach ($matches[0] as $match) {
                 $imgelement = preg_replace('/width=".*?"/', 'style="width:35px;height:35px"', $match);
                 $imgelement = preg_replace('/height=".*?"/', '', $imgelement);
-				$this->content->text = str_replace($match, $imgelement, $this->content->text, $count);
+		    $this->content->text = str_replace($match, $imgelement, $this->content->text);
             }
-		}
+        }
 
-		return $this->content;
+	return $this->content;
     }
 }
 
