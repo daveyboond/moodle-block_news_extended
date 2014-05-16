@@ -1,0 +1,4 @@
+A news block that renders the items in the same way as 'Site News' does on the Moodle site home page.
+This can be used to put site news onto the My Moodle page.
+
+Install into /blocks/news_extended
